@@ -1,15 +1,19 @@
 package internal
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 )
 
+// внутренняя структура, то как данные хранятся в памяти
 type Notification struct {
-	id     string
-	info   time.Time
-	status int
+	Id       string    `json:"id"`
+	Msg      string    `json:"message"`
+	SendDate time.Time `json:"send_date"`
+	Status   string
 }
 
 type Storage struct {
@@ -41,23 +45,29 @@ var InfoCh = make(chan string, 5) // создали глобальный кан�
 /*
 Прописываем хэндлеры
 */
+// а это уже для API слоя
+type Response struct {
+	Id       string    `json:"id"`
+	Msg      string    `json:"message"`
+	SendDate time.Time `json:"send_date"`
+	Status   string
+}
 
 func HandleCreateNotification(w http.ResponseWriter, r *http.Request) {
 	// пришёл POST-запрос на создание уведомления /notify
 	var msg string
-	id := r.URL.Query().Get("id")
+	var ntf Notification
+	json.NewDecoder(r.Body).Decode(&ntf)
+	defer r.Body.Close()
 	storage.mu.Lock()
-	if _, ok := storage.notifications[id]; !ok {
-		ntf := &Notification{
-			id,
-			time.Now(),
-			0,
-		}
-		storage.notifications[id] = ntf
-		msg = "Created " + id + " notification at " + ntf.info.String()
+	fmt.Println(ntf)
+	InfoCh <- ntf.Id
+	if _, ok := storage.notifications[ntf.Id]; !ok {
+		storage.notifications[ntf.Id] = &ntf
+		msg = "Created " + ntf.Id + " notification at " + ntf.SendDate.String()
 		w.WriteHeader(http.StatusCreated)
 	} else {
-		msg = "Not created " + id + " notification. Already exists."
+		msg = "Not created " + ntf.Id + " notification. Already exists."
 		w.WriteHeader(http.StatusConflict)
 	}
 	storage.mu.Unlock()
@@ -73,8 +83,17 @@ func HandleGetNotification(w http.ResponseWriter, r *http.Request) {
 		msg = "Not found " + id + " notification"
 	} else {
 		ntf := storage.notifications[id]
+		resp := Response{
+			ntf.Id,
+			ntf.Msg,
+			ntf.SendDate,
+			ntf.Status,
+		}
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		msg = "Found " + id + " notification. Time info " + ntf.info.String()
+		json.NewEncoder(w).Encode(&resp)
+		msg = "Found " + id + " notification. Time info " + ntf.SendDate.String()
+
 	}
 	storage.mu.RUnlock()
 	InfoCh <- msg
