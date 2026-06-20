@@ -28,16 +28,14 @@ func NewStorage() *Storage {
 	}
 }
 
-// функция инициализации
-func InitAll() (*Storage, error) {
-	storage := NewStorage()
-	return storage, nil
-}
-
 // пока напишем глобальный Storage. Потом подумаю, как правильно изолировать
 var storage = Storage{
 	make(map[string]*Notification),
 	sync.RWMutex{},
+}
+
+// сделать проброс publisher в структуру handler-а
+type Handler struct {
 }
 
 var InfoCh = make(chan string, 5) // создали глобальный канал для мониторинга
