@@ -1,6 +1,0 @@
-github.com/rabbitmq/amqp091-go v1.10.0 h1:STpn5XsHlHGcecLmMFCtg7mqq0RnD+zFr4uzukfVhBw=
-github.com/rabbitmq/amqp091-go v1.10.0/go.mod h1:Hy4jKW5kQART1u+JkDTF9YYOQUHXqMuhrgxOEeS7G4o=
-github.com/streadway/amqp v1.1.0 h1:py12iX8XSyI7aN/3dUT8DFIDJazNJsVJdxNVEpnQTZM=
-github.com/streadway/amqp v1.1.0/go.mod h1:WYSrTEYHOXHd0nwFeUXAe2G2hRnQT+deZJJf88uS9Bg=
-github.com/wb-go/wbf v0.0.13 h1:Df/RhheqjZfHA6lh8xSlON+k4F8sNDljkZCO81PQP5I=
-github.com/wb-go/wbf v0.0.13/go.mod h1:rm5PR6mbAlOnhacTFLFF6+d9v0cL9mXt7uukehqM6JQ=
