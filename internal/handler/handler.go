@@ -33,7 +33,15 @@ func (h *handler) HandleCreateNotification(w http.ResponseWriter, r *http.Reques
 	var ntf repository.Notification
 	json.NewDecoder(r.Body).Decode(&ntf)
 	defer r.Body.Close()
+	// отдельно в хранилище
 	ntf, err := h.service.CreateNotification(ntf)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+	// отдельно в брокер
+	ntf, err = h.service.PushNotificationToBroker(r.Context(), ntf) // добавим контекст
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusConflict)

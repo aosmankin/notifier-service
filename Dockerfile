@@ -6,7 +6,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -v -o /usr/local/bin/server ./cmd/server
+RUN go build -v -o /usr/local/bin/api ./cmd/api
 
-# запустится, т.к. в PATH лежит путь /usr/local/bin/server
-CMD ["server"]
+CMD ["api"]
