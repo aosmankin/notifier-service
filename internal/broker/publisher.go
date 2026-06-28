@@ -49,7 +49,7 @@ func (rb *RabbitPublisher) PublishMsgWithDelay(ctx context.Context, d amqp091.De
 	for k, v := range newHeaders {
 		headers[k] = v
 	}
-	err := rb.publisher.Publish(ctx, d.Body, "NotifyRoutingKey", // DelayRoutingKey
+	err := rb.publisher.Publish(ctx, d.Body, "DelayRoutingKey", // DelayRoutingKey
 		rabbitmq.WithHeaders(headers),
 		rabbitmq.WithExpiration(time.Duration(delay)*time.Millisecond))
 	return err

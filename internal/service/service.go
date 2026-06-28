@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+
 	"notifier-service/internal/broker"
 	"notifier-service/internal/repository"
 )

@@ -23,10 +23,8 @@ type RabbitConsumer struct {
 }
 
 func NewRabbitConsumer(clt *rabbitmq.RabbitClient, pub Publisher) *RabbitConsumer {
-	//args := amqp091.Table{}
 	consumerCfg := rabbitmq.ConsumerConfig{
 		Queue: "notify-queue",
-		//Args:  args,
 	}
 	handler := func(ctx context.Context, d amqp091.Delivery) error {
 		// Обработка...
@@ -37,7 +35,6 @@ func NewRabbitConsumer(clt *rabbitmq.RabbitClient, pub Publisher) *RabbitConsume
 			log.Printf("cannot unmarshal ntf in consumer: %v\n", err)
 			return err
 		}
-
 		currTime := time.Now()
 		if ntf.SendDate.After(currTime) {
 			// отправлям в очередь с задержкой
@@ -48,6 +45,7 @@ func NewRabbitConsumer(clt *rabbitmq.RabbitClient, pub Publisher) *RabbitConsume
 
 		err = SendNotificationToUser(ntf)
 		if err == nil {
+			// тут мы должны вызвать метод DELETE
 			return nil // ACK
 		}
 

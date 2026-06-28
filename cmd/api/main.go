@@ -47,7 +47,7 @@ func main() {
 	}
 	delayArgs := amqp091.Table{
 		"x-dead-letter-exchange":    "MyExchange",
-		"x-dead-letter-routing-key": "notify",
+		"x-dead-letter-routing-key": "NotifyRoutingKey",
 	}
 	err = clt.DeclareQueue("delay-notify-queue", "MyExchange", "DelayRoutingKey", true, false, true, delayArgs)
 	if err != nil {
