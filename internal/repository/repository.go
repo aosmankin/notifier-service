@@ -56,7 +56,7 @@ func (r *notifyRepository) Delete(id string) error {
 	defer r.mu.Unlock()
 
 	if _, ok := r.storage[id]; !ok {
-		return errors.New("Notification not found")
+		return ErrNotFound
 	}
 
 	delete(r.storage, id)

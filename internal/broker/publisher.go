@@ -3,7 +3,6 @@ package broker
 import (
 	"context"
 	"log"
-	"notifier-service/internal/repository"
 	"time"
 
 	"github.com/rabbitmq/amqp091-go"
@@ -53,10 +52,4 @@ func (rb *RabbitPublisher) PublishMsgWithDelay(ctx context.Context, d amqp091.De
 		rabbitmq.WithHeaders(headers),
 		rabbitmq.WithExpiration(time.Duration(delay)*time.Millisecond))
 	return err
-}
-
-func SendNotificationToUser(ntf repository.Notification) error {
-	// имитация отправления уведомления пользователю
-	log.Printf("Notfication %s was sent to user at %v\n%s\n", ntf.Id, ntf.SendDate, ntf.Msg)
-	return nil
 }

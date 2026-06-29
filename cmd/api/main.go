@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"notifier-service/internal/broker"
+	"notifier-service/internal/config"
 	"notifier-service/internal/handler"
 	"notifier-service/internal/repository"
 	"notifier-service/internal/service"
@@ -19,14 +20,23 @@ import (
 )
 
 func main() {
+	envCfg, err := config.LoadEnvConfig()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Printf("HOST_ADDR=%q", envCfg.HostAddr)
+	log.Printf("RABBIT_CONNECTION_NAME=%q", envCfg.RabbitConName)
+	log.Printf("RABBIT_URL=%q", envCfg.RabbitURL)
+	log.Printf("MAX_RETRIES=%d", envCfg.MaxRetries)
+
 	strategy := retry.Strategy{
 		Attempts: 3,
 		Delay:    3 * time.Second,
 		Backoff:  2,
 	}
 	cfg := rabbitmq.ClientConfig{
-		URL:            "amqp://root:root_password@localhost:5673/", // вынести в .env
-		ConnectionName: "notification-service",                      // вынести в .env
+		URL:            envCfg.RabbitURL,     // вынести в .env
+		ConnectionName: envCfg.RabbitConName, // вынести в .env
 		ConnectTimeout: 5 * time.Second,
 		Heartbeat:      10 * time.Second,
 		ProducingStrat: strategy,
@@ -53,13 +63,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error by declare Delay Queue: %v\n", err)
 	}
-	// создаем publisher и consumer
+	// создаем publisher
 	pub := broker.NewRabbitPublisher(clt)
-	csm := broker.NewRabbitConsumer(clt, pub)
 
-	// создаём слои repository, service и handler
+	// создаём слои repository, service
 	repo := repository.NewNotifyRepository()
 	svc := service.NewNotifyService(repo, pub)
+
+	// создаём consumer
+	csm := broker.NewRabbitConsumer(clt, svc.ProcessQueuedNotification)
+
+	// создаем слой handler
 	h := handler.NewHandler(svc)
 
 	mux := http.NewServeMux()
@@ -68,7 +82,7 @@ func main() {
 	/*publisher будет на сервисном слое (не в repository). То есть логично создать
 	в структуре NotifyService интерфейс Publisher */
 	srv := http.Server{
-		Addr:         ":8080", // адрес лучше прописать через переменные окружения
+		Addr:         envCfg.HostAddr, // адрес лучше прописать через переменные окружения
 		Handler:      mux,
 		ReadTimeout:  10 * time.Millisecond,
 		WriteTimeout: 10 * time.Millisecond,
@@ -79,7 +93,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		broker.CheckNotifications(context.Background(), csm)
+		service.CheckNotifications(context.Background(), csm)
 	}()
 
 	// запускаем http-сервер

@@ -23,10 +23,10 @@ services:
     ports:
       - "8081:8080"
     environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: root
-      RABBITMQ_PASS: root_password
+      HOST_ADDR: ${HOST_ADDR}
+      RABBIT_CONNECTION_NAME: ${RABBIT_CONNECTION_NAME}
+      RABBIT_URL: ${RABBIT_URL}
+      MAX_RETRIES: ${MAX_RETRIES}
     depends_on:
       rabbitmq:
         condition: service_healthy
