@@ -24,10 +24,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Printf("HOST_ADDR=%q", envCfg.HostAddr)
-	log.Printf("RABBIT_CONNECTION_NAME=%q", envCfg.RabbitConName)
-	log.Printf("RABBIT_URL=%q", envCfg.RabbitURL)
-	log.Printf("MAX_RETRIES=%d", envCfg.MaxRetries)
 
 	strategy := retry.Strategy{
 		Attempts: 3,

@@ -7,5 +7,5 @@ RUN go mod download
 
 COPY . .
 RUN go build -v -o /usr/local/bin/api ./cmd/api
-
+ 
 CMD ["api"]
